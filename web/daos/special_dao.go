@@ -6,9 +6,10 @@ import (
 	"flygoose/pkg/models"
 	"flygoose/pkg/tlog"
 	"fmt"
-	"gorm.io/gorm"
 	"strconv"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type SpecialDao struct {
@@ -73,19 +74,19 @@ func (dao *SpecialDao) SearchSpecial(word string, status int, num int, size int)
 	var sqlCount = ""
 	if word != "" && status > 0 {
 		sql = "select * from special where title like " + "'%" + word + "%'" + " and status=" + strconv.Itoa(status) +
-			" order by create_time desc  limit " + strconv.Itoa(size*(num-1)) + " , " + strconv.Itoa(size)
+			" order by create_time desc  offset " + strconv.Itoa(size*(num-1)) + " limit " + strconv.Itoa(size)
 		sqlCount = "select count(*) as count from special where title like " + "'%" + word + "%'" + " and status=" + strconv.Itoa(status)
 	} else if word != "" && status <= 0 {
-		sql = "select * from special where title like " + "'%" + word + "%'" + " order by create_time desc limit " + strconv.Itoa(size*(num-1)) + " , " + strconv.Itoa(size)
+		sql = "select * from special where title like " + "'%" + word + "%'" + " order by create_time desc offset " + strconv.Itoa(size*(num-1)) + " limit " + strconv.Itoa(size)
 		sqlCount = "select count(*) as count from special where title like " + "'%" + word + "%'"
 	} else if status > 0 && word == "" {
-		s1 := "select * from special where  status=%d order by create_time desc  limit %d , %d"
+		s1 := "select * from special where  status=%d order by create_time desc  offset %d limit %d"
 		sql = fmt.Sprintf(s1, status, size*(num-1), size)
 
 		s2 := "select count(*) as count from special where status=%d"
 		sqlCount = fmt.Sprintf(s2, status)
 	} else { //都不传，获取全部
-		sql = "select * from special order by create_time desc  limit  " + strconv.Itoa(size*(num-1)) + " , " + strconv.Itoa(size)
+		sql = "select * from special order by create_time desc  offset  " + strconv.Itoa(size*(num-1)) + " limit " + strconv.Itoa(size)
 		sqlCount = "select count(*) as count from special"
 	}
 
@@ -189,7 +190,7 @@ func (dao *SpecialDao) GetSpecialList(num int, size int) ([]models.Special, bool
 	var list []models.Special
 	var hasMore bool
 
-	sql := fmt.Sprintf("select * from special where status=%d order by publish_time desc limit %d,%d", models.SpecialStatusPublished, size*(num-1), size)
+	sql := fmt.Sprintf("select * from special where status=%d order by publish_time desc offset %d limit %d", models.SpecialStatusPublished, size*(num-1), size)
 	result := dao.db.Model(&models.Special{}).Raw(sql).Scan(&list)
 	if result.Error != nil {
 		tlog.Error2("SpecialDao:GetSpecialList List 出错", result.Error)

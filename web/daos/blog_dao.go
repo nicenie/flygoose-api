@@ -5,9 +5,10 @@ import (
 	"flygoose/pkg/models"
 	"flygoose/pkg/tlog"
 	"fmt"
-	"gorm.io/gorm"
 	"strconv"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type BlogDao struct {
@@ -101,19 +102,19 @@ func (dao *BlogDao) SearchBlog(word string, status int, num int, size int) ([]mo
 	var sqlCount = ""
 	if word != "" && status > 0 {
 		sql = "select * from blog where title like " + "'%" + word + "%'" + " and status=" + strconv.Itoa(status) +
-			" order by create_time desc  limit " + strconv.Itoa(size*(num-1)) + " , " + strconv.Itoa(size)
+			" order by create_time desc  offset " + strconv.Itoa(size*(num-1)) + " limit " + strconv.Itoa(size)
 		sqlCount = "select count(*) as count from blog where title like " + "'%" + word + "%'" + " and status=" + strconv.Itoa(status)
 	} else if word != "" && status <= 0 {
-		sql = "select * from blog where title like " + "'%" + word + "%'" + " order by create_time desc limit " + strconv.Itoa(size*(num-1)) + " , " + strconv.Itoa(size)
+		sql = "select * from blog where title like " + "'%" + word + "%'" + " order by create_time desc offset " + strconv.Itoa(size*(num-1)) + " limit " + strconv.Itoa(size)
 		sqlCount = "select count(*) as count from blog where title like " + "'%" + word + "%'"
 	} else if status > 0 && word == "" {
-		s1 := "select * from blog where  status=%d order by create_time desc  limit %d , %d"
+		s1 := "select * from blog where  status=%d order by create_time desc  offset %d limit %d"
 		sql = fmt.Sprintf(s1, status, size*(num-1), size)
 
 		s2 := "select count(*) as count from blog where status=%d"
 		sqlCount = fmt.Sprintf(s2, status)
 	} else { //都不传，获取全部
-		sql = "select * from blog order by create_time desc  limit  " + strconv.Itoa(size*(num-1)) + " , " + strconv.Itoa(size)
+		sql = "select * from blog order by create_time desc  offset  " + strconv.Itoa(size*(num-1)) + " limit " + strconv.Itoa(size)
 		sqlCount = "select count(*) as count from blog"
 	}
 
@@ -138,9 +139,9 @@ func (dao *BlogDao) SearchBlog(word string, status int, num int, size int) ([]mo
 func (dao *BlogDao) GetBlogListByAction(action int, num int, size int) ([]models.Blog, bool) {
 	var sql string
 	if action == 0 { //最新发布
-		sql = fmt.Sprintf("select id,title,intro,thumbnail,publish_time,read_count,is_top,tags from blog where status=%d order by is_top desc ,  publish_time desc limit %d,%d", models.BlogStatusPublished, (num-1)*size, size)
+		sql = fmt.Sprintf("select id,title,intro,thumbnail,publish_time,read_count,is_top,tags from blog where status=%d order by is_top desc ,  publish_time desc offset %d limit %d", models.BlogStatusPublished, (num-1)*size, size)
 	} else { //阅读数最多
-		sql = fmt.Sprintf("select id,title,intro,thumbnail,publish_time,read_count,is_top,tags from blog where status=%d order by is_top desc ,  read_count desc , publish_time desc limit %d,%d", models.BlogStatusPublished, (num-1)*size, size)
+		sql = fmt.Sprintf("select id,title,intro,thumbnail,publish_time,read_count,is_top,tags from blog where status=%d order by is_top desc ,  read_count desc , publish_time desc offset %d limit %d", models.BlogStatusPublished, (num-1)*size, size)
 	}
 
 	var list []models.Blog
@@ -160,7 +161,7 @@ func (dao *BlogDao) GetCateBlogList(cateId int64, num int, size int) ([]models.B
 	var list []models.Blog
 	var hasMore bool
 
-	sql := fmt.Sprintf(" select id,title,intro,thumbnail,publish_time,read_count,is_top,tags from blog where status=%d and cate_id=%d order by is_top desc , publish_time desc limit %d,%d", models.BlogStatusPublished, cateId, (num-1)*size, size)
+	sql := fmt.Sprintf(" select id,title,intro,thumbnail,publish_time,read_count,is_top,tags from blog where status=%d and cate_id=%d order by is_top desc , publish_time desc offset %d limit %d", models.BlogStatusPublished, cateId, (num-1)*size, size)
 	result := dao.db.Model(&models.Blog{}).Raw(sql).Scan(&list)
 	if result.Error != nil {
 		tlog.Error2("BlogDao:GetCateBlogList Scan 出错", result.Error)
@@ -185,7 +186,7 @@ func (dao *BlogDao) GetAllTags() []string {
 
 func (dao *BlogDao) GetBlogListByTag(tagName string, num int, size int) ([]models.Blog, bool) {
 	sql := "select * from blog where tags like " + "'%" + tagName + "%'" + " and status=" + strconv.Itoa(int(models.BlogStatusPublished)) +
-		" order by publish_time desc limit " + strconv.Itoa(size*(num-1)) + " , " + strconv.Itoa(size)
+		" order by publish_time desc offset " + strconv.Itoa(size*(num-1)) + " limit " + strconv.Itoa(size)
 
 	var list []models.Blog
 	var hasMore bool
