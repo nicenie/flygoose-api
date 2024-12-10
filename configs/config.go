@@ -15,6 +15,7 @@ var Cfg *Config
 type Config struct {
 	Http         HttpCfg     `yaml:"http"`
 	Database     DatabaseCfg `yaml:"database"`
+	Admin        AdminCfg    `yaml:"admin"`
 	ExecuteDir   string
 	StaticDir    string
 	StaticImgDir string
@@ -31,6 +32,12 @@ type DatabaseCfg struct {
 	Port     int          `yaml:"port"`
 	User     string       `yaml:"user"`
 	Password string       `yaml:"password"`
+}
+
+type AdminCfg struct {
+	Account string `yaml:"account"`
+	Passwd  string `yaml:"passwd"`
+	Avatar  string `yaml:"avatar"`
 }
 
 // 数据库类型

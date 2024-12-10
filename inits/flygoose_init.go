@@ -11,12 +11,13 @@ import (
 	"flygoose/web/controllers/flygoose"
 	"flygoose/web/daos"
 	"fmt"
+	"path/filepath"
+	"time"
+
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/middleware/cors"
 	"github.com/kataras/iris/v12/mvc"
 	"go.uber.org/zap"
-	"path/filepath"
-	"time"
 )
 
 type FlygooseApp struct {
@@ -86,7 +87,7 @@ func (m *FlygooseApp) initDB() {
 	m.initAutoMigrate()
 
 	ad := daos.NewAccessDao()
-	cnt, err := ad.CountUsername(configs.Flygoose_Admin_Phone)
+	cnt, err := ad.CountUsername(configs.Cfg.Admin.Account)
 	if err != nil {
 		fmt.Printf("查询数据库中是否存在默认账户错误. err: %w\n", err)
 		panic(errors.New("查询数据库中是否存在默认账户错误"))
@@ -94,10 +95,10 @@ func (m *FlygooseApp) initDB() {
 
 	if cnt == 0 {
 		initAccountUser := models.Admin{
-			Phone:      configs.Flygoose_Admin_Phone,
-			Password:   "21232f297a57a5a743894a0e4a801fc3",
+			Phone:      configs.Cfg.Admin.Account,
+			Password:   configs.Cfg.Admin.Passwd,
 			Nicker:     "admin",
-			Avatar:     "https://img-hello-world.oss-cn-beijing.aliyuncs.com/imgs/b3e9e8fb50b3eba780178256a21234ec.jpg",
+			Avatar:     configs.Cfg.Admin.Avatar,
 			CreateTime: time.Now(),
 			ValidTime:  time.Now(),
 			LoginTime:  time.Now(),

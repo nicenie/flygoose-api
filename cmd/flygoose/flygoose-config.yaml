@@ -9,8 +9,15 @@ database:
   # 数据库端口
   port: 5432
   # 数据库名称
-  name: flygoose
+  name: db_flygoose
   # 用户名
   user: flygoose
   # 密码
   password: flygoose@123.
+admin:
+  # 后台管理账户
+  account: 12345678901
+  # 管理账户密码
+  passwd: 21232f297a57a5a743894a0e4a801fc3
+  # 管理账户头像
+  avatar: "https://img-hello-world.oss-cn-beijing.aliyuncs.com/imgs/b3e9e8fb50b3eba780178256a21234ec.jpg"
