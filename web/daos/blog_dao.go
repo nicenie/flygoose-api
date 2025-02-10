@@ -207,6 +207,9 @@ func (dao *BlogDao) GetBlogDetail(blogId int64) *models.Blog {
 		tlog.Error2("BlogDao:GetBlogDetail Scan 出错", result.Error)
 		return nil
 	}
+	if err := dao.db.Model(&blog).Update("read_count", gorm.Expr("read_count+?", 1)).Error; err != nil {
+		tlog.Error2("BlogDao:UpdateReadCount 错误", err)
+	}
 	return &blog
 }
 
