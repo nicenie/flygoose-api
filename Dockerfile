@@ -1,5 +1,5 @@
 ## build flygoose api
-FROM golang:1.21.6-alpine3.19 AS build
+FROM golang:1.22-alpine3.21 AS build
 
 COPY . /flygoose
 
@@ -10,19 +10,19 @@ RUN export GOPROXY='https://goproxy.cn,direct' && go build -o /build/flygoose .
 ## build flygoose admin api
 
 ## build
-FROM golang:1.21.6-alpine3.19 AS build2
+# FROM golang:1.22-alpine3.21 AS build2
 
-COPY . /flygoose
+# COPY . /flygoose
 
-WORKDIR /flygoose/cmd/admin
+# WORKDIR /flygoose/cmd/admin
 
-RUN export GOPROXY='https://goproxy.cn,direct' && go build -o /build/admin .
+# RUN export GOPROXY='https://goproxy.cn,direct' && go build -o /build/admin .
 
 
 ## deploy flygoose
-FROM golang:1.21.6-alpine3.19
+FROM golang:1.22-alpine3.21
 
-RUN adduser -D -u 6666 www
+# RUN adduser -D -u 6666 www
 
 #copy flygoose
 COPY --from=build /build/flygoose /apps/flygoose/
@@ -30,13 +30,13 @@ COPY --from=build /build/flygoose /apps/flygoose/
 COPY --from=build /flygoose/cmd/flygoose/flygoose-config.yaml /apps/flygoose/
 
 #copy flygoose admin
-COPY --from=build2 /build/admin /apps/admin/
+# COPY --from=build2 /build/admin /apps/admin/
 
-COPY --from=build2 /flygoose/cmd/admin/admin-config.yaml /apps/admin/
+# COPY --from=build2 /flygoose/cmd/admin/admin-config.yaml /apps/admin/
 
-RUN chown -R www /apps/flygoose /apps/admin
+# RUN chown -R www /apps/flygoose /apps/admin
 
-USER www
+# USER www
 
 # admin api
 #CMD ["sh", "-c", "/apps/admin/admin -c /apps/admin/admin-config.yaml"]
